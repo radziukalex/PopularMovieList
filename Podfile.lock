@@ -1,0 +1,22 @@
+PODS:
+  - Alamofire (5.6.4)
+  - Realm (10.36.0):
+    - Realm/Headers (= 10.36.0)
+  - Realm/Headers (10.36.0)
+
+DEPENDENCIES:
+  - Alamofire
+  - Realm
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - Realm
+
+SPEC CHECKSUMS:
+  Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
+  Realm: 3fd136cb4c83a927482a7f1612496d37beed3cf5
+
+PODFILE CHECKSUM: 2b9458a88046df806be211664bbca09ab05b21b1
+
+COCOAPODS: 1.12.0
