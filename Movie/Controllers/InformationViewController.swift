@@ -8,7 +8,7 @@
 import UIKit
 
 class InformationViewController: UIViewController, UINavigationBarDelegate {
-
+    
     private var posterFromTable = UIImage()
     private var movieOriginalTitleFromURL = String()
     private var movieOverviewFromURL = String()
@@ -16,6 +16,7 @@ class InformationViewController: UIViewController, UINavigationBarDelegate {
     
     
     init (posterFromTable: UIImage, movieOriginalTitleFromURL: String, movieOverviewFromURL: String, voteAvarageFromURL: Double) {
+        
         self.posterFromTable = posterFromTable
         self.movieOriginalTitleFromURL = movieOriginalTitleFromURL
         self.movieOverviewFromURL = movieOverviewFromURL
@@ -30,7 +31,7 @@ class InformationViewController: UIViewController, UINavigationBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGray2
-        setupNavBar()
+//        setupNavBar()
         setupUI()
     }
     
@@ -42,9 +43,10 @@ class InformationViewController: UIViewController, UINavigationBarDelegate {
         navBar.translatesAutoresizingMaskIntoConstraints = false
         navBar.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         navBar.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        navBar.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -800).isActive = true
+        navBar.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -810).isActive = true
         navBar.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         navBar.backgroundColor = .systemGray
+        
     }
     
     func setupUI() {

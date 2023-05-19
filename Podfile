@@ -7,5 +7,7 @@ target 'Movie' do
 
   # Pods for Movie
 	pod 'Alamofire'
-	pod 'Realm'
+#  pod 'RealmSwift', '10.33.0'
+#  pod 'Realm', '10.33.0'
+  pod 'SnapKit'
 end
