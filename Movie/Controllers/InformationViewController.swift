@@ -6,21 +6,22 @@
 //
 
 import UIKit
+import SnapKit
 
 class InformationViewController: UIViewController, UINavigationBarDelegate {
     
     private var posterFromTable = UIImage()
     private var movieOriginalTitleFromURL = String()
     private var movieOverviewFromURL = String()
-    private var voteAvarageFromURL = Double()
+    private var voteAverageFromURL = Double()
     
+    lazy var navBar = UINavigationBar()
     
-    init (posterFromTable: UIImage, movieOriginalTitleFromURL: String, movieOverviewFromURL: String, voteAvarageFromURL: Double) {
-        
+    init(posterFromTable: UIImage, movieOriginalTitleFromURL: String, movieOverviewFromURL: String, voteAverageFromURL: Double) {
         self.posterFromTable = posterFromTable
         self.movieOriginalTitleFromURL = movieOriginalTitleFromURL
         self.movieOverviewFromURL = movieOverviewFromURL
-        self.voteAvarageFromURL = voteAvarageFromURL
+        self.voteAverageFromURL = voteAverageFromURL
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -30,85 +31,96 @@ class InformationViewController: UIViewController, UINavigationBarDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGray2
-//        setupNavBar()
+        self.view.backgroundColor = .systemGray2
+        setupNavBar()
         setupUI()
-    }
-    
-    lazy var navBar = UINavigationBar()
-    
-    func setupNavBar() {
-        view.addSubview(navBar)
-        navigationController?.navigationBar.tintColor = .black
-        navBar.translatesAutoresizingMaskIntoConstraints = false
-        navBar.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        navBar.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        navBar.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -810).isActive = true
-        navBar.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        navBar.backgroundColor = .systemGray
-        
-    }
-    
-    func setupUI() {
-        let posterPath = UIImageView()
-        let movieOriginalTitle = UILabel()
-        let movieOverview = UILabel()
-        let voteAverage = UILabel()
-        
-        view.addSubview(posterPath)
-        view.addSubview(movieOriginalTitle)
-        view.addSubview(movieOverview)
-        view.addSubview(voteAverage)
-        
-        posterPath.translatesAutoresizingMaskIntoConstraints = false
-        movieOriginalTitle.translatesAutoresizingMaskIntoConstraints = false
-        movieOverview.translatesAutoresizingMaskIntoConstraints = false
-        voteAverage.translatesAutoresizingMaskIntoConstraints = false
-        
-        posterPath.contentMode = .scaleAspectFit
-        posterPath.layer.masksToBounds = true
-        posterPath.layer.cornerRadius = 30
-        posterPath.topAnchor.constraint(equalTo: view.topAnchor, constant: 120).isActive = true
-        posterPath.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        posterPath.heightAnchor.constraint(equalToConstant: 400).isActive = true
-        posterPath.widthAnchor.constraint(equalToConstant: 267).isActive = true
-        posterPath.image = posterFromTable
-        
-        voteAverage.textColor = .white
-        voteAverage.font = UIFont.boldSystemFont(ofSize: 16)
-        voteAverage.textAlignment = .center
-        voteAverage.topAnchor.constraint(equalTo: posterPath.topAnchor, constant: 10).isActive = true
-        voteAverage.centerXAnchor.constraint(equalTo: posterPath.centerXAnchor, constant: 100).isActive = true
-        voteAverage.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        voteAverage.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        voteAverage.backgroundColor = .systemMint
-        voteAverage.text = String(voteAvarageFromURL)
-        voteAverage.layer.masksToBounds = true
-        voteAverage.layer.cornerRadius = 10
-        
-        movieOriginalTitle.textColor = .black
-        movieOriginalTitle.font = UIFont.systemFont(ofSize: 28)
-        movieOriginalTitle.textAlignment = .center
-        movieOriginalTitle.topAnchor.constraint(equalTo: posterPath.bottomAnchor, constant: 20).isActive = true
-        movieOriginalTitle.centerXAnchor.constraint(equalTo: posterPath.centerXAnchor).isActive = true
-        movieOriginalTitle.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
-        movieOriginalTitle.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
-        movieOriginalTitle.numberOfLines = 0
-        movieOriginalTitle.text = movieOriginalTitleFromURL
-        
-        movieOverview.textColor = .black
-        movieOverview.font = UIFont.systemFont(ofSize: 16)
-        movieOverview.textAlignment = .justified
-        movieOverview.topAnchor.constraint(equalTo: movieOriginalTitle.bottomAnchor, constant: 10).isActive = true
-        movieOverview.centerXAnchor.constraint(equalTo: posterPath.centerXAnchor).isActive = true
-        movieOverview.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
-        movieOverview.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
-        movieOverview.numberOfLines = 0
-        movieOverview.text = movieOverviewFromURL
-        
     }
     
 }
 
-
-
+extension InformationViewController {
+    
+    private func setupUI() {
+        let moviePoster = UIImageView()
+        let movieTitle = UILabel()
+        let movieOverview = UILabel()
+        let voteAverage = UILabel()
+        
+        setupMoviePosterUI(poster: moviePoster)
+        setupVoteAverageUI(average: voteAverage, poster: moviePoster)
+        setupMovieTitleUI(title: movieTitle, poster: moviePoster)
+        setupMovieOverviewUI(overview: movieOverview, title: movieTitle)
+    }
+    
+    private func setupMoviePosterUI(poster: UIImageView) {
+        self.view.addSubview(poster)
+        poster.contentMode = .scaleAspectFit
+        poster.layer.masksToBounds = true
+        poster.layer.cornerRadius = 30
+        poster.image = posterFromTable
+        poster.snp.makeConstraints { make in
+            make.height.equalTo(400)
+            make.width.equalTo(267)
+            make.top.equalTo(self.view).inset(120)
+            make.centerX.equalTo(self.view)
+        }
+    }
+    
+    private func setupVoteAverageUI(average: UILabel, poster: UIImageView) {
+        self.view.addSubview(average)
+        average.textColor = .systemBackground
+        average.font = UIFont.boldSystemFont(ofSize: 18)
+        average.textAlignment = .center
+        average.backgroundColor = .systemOrange
+        average.text = String(voteAverageFromURL)
+        average.layer.masksToBounds = true
+        average.layer.cornerRadius = 20
+        average.snp.makeConstraints { make in
+            make.top.equalTo(poster).inset(370)
+            make.left.equalTo(poster).inset(-10)
+            make.height.equalTo(40)
+            make.width.equalTo(40)
+        }
+    }
+    
+    private func setupMovieTitleUI(title: UILabel, poster: UIImageView) {
+        self.view.addSubview(title)
+        title.textColor = .black
+        title.font = UIFont.systemFont(ofSize: 28)
+        title.textAlignment = .center
+        title.text = movieOriginalTitleFromURL
+        title.numberOfLines = 1
+        title.text = movieOriginalTitleFromURL
+        title.snp.makeConstraints { make in
+            make.top.equalTo(poster).inset(420)
+            make.left.equalTo(self.view).inset(20)
+            make.right.equalTo(self.view).inset(20)
+        }
+    }
+    
+    private func setupMovieOverviewUI(overview: UILabel, title: UILabel) {
+        self.view.addSubview(overview)
+        overview.textColor = .black
+        overview.font = UIFont.systemFont(ofSize: 16)
+        overview.textAlignment = .justified
+        overview.numberOfLines = 0
+        overview.text = movieOverviewFromURL
+        overview.snp.makeConstraints { make in
+            make.top.equalTo(title).inset(40)
+            make.left.equalTo(self.view).inset(20)
+            make.right.equalTo(self.view).inset(20)
+        }
+    }
+    
+    private func setupNavBar() {
+        self.view.addSubview(navBar)
+        navigationController?.navigationBar.tintColor = .black
+        navBar.backgroundColor = .systemGray
+        navBar.snp.makeConstraints {
+            $0.left.equalToSuperview()
+            $0.right.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(810)
+            $0.top.equalToSuperview()
+        }
+    }
+}

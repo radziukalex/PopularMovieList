@@ -10,12 +10,10 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    private lazy var dateBase: DataBaseProtocol = CoreDatManager()
+    private lazy var imageLoader: ImageLoaderProtocol = ImageLoader(networking: MovieNetworking())
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         self.window = UIWindow(windowScene: windowScene)
         if UserDefaults.standard.bool(forKey: "tutorial_shown") == true {
@@ -30,9 +28,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 private extension SceneDelegate {
     func makeMainFlow() -> UIViewController {
         let networking = MovieNetworking()
-        let coreData = CoreDatManager()
-        let model = MovieViewModel(networking: networking, dataBase: coreData)
-        return TabBarController(model: model)
+        let model = MovieViewModel(networking: networking, dataBase: dateBase)
+        return TabBarController(model: model, imageLoader: imageLoader)
     }
     
     func makeTutorialFlow() -> UIViewController {
@@ -41,7 +38,6 @@ private extension SceneDelegate {
             self?.window?.rootViewController = self?.makeMainFlow()
             UserDefaults.standard.set(true, forKey: "tutorial_shown")
         }
-        
         return TutorialViewController(viewControllers: [aboutApp, instructionApp])
     }
     

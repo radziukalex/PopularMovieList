@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class InstructionTutorialViewController: UIViewController {
     
@@ -20,7 +21,12 @@ class InstructionTutorialViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var bottonToApp: UIButton = {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+    
+    private var buttonToApp: UIButton = {
         let button = UIButton()
         button.setTitle("Tap to start", for: .normal)
         button.addTarget(self, action: #selector(tapToButton), for: .touchDown)
@@ -31,12 +37,16 @@ class InstructionTutorialViewController: UIViewController {
     @objc private func tapToButton() {
         successCallBack()
     }
+}
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .systemRed
-        view.addSubview(bottonToApp)
-        bottonToApp.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        bottonToApp.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+extension InstructionTutorialViewController {
+    
+    private func setupUI() {
+        self.view.addSubview(buttonToApp)
+        self.view.backgroundColor = .systemRed
+        buttonToApp.snp.makeConstraints {
+            $0.centerY.centerX.equalToSuperview()
+        }
+        
     }
 }

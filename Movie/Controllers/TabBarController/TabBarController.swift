@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 private enum TabBarItem: Int {
+    
     case movie
     case settings
     case profile
@@ -25,6 +26,7 @@ private enum TabBarItem: Int {
     }
         
     var iconName: String {
+        
         switch self {
         case .movie:
             return "house.fill"
@@ -39,9 +41,11 @@ private enum TabBarItem: Int {
 class TabBarController: UITabBarController {
     
     let model: MovieViewModelProtocol
+    let imageLoader: ImageLoaderProtocol
     
-    init (model: MovieViewModelProtocol) {
+    init(model: MovieViewModelProtocol, imageLoader: ImageLoaderProtocol) {
         self.model = model
+        self.imageLoader = imageLoader
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -61,10 +65,10 @@ class TabBarController: UITabBarController {
         self.viewControllers = dataSource.map {
             switch $0 {
             case .movie:
-                let movieVC = MovieViewController(movieViewModel: model)
+                let movieVC = MovieViewController(movieViewModel: model, imageLoader: imageLoader)
                 return self.wrappedVC(with: movieVC, title: $0.title)
             case .profile:
-                let profileVC = ProfileViewController()
+                let profileVC = ProfileViewController(movieViewModel: model, imageLoader: imageLoader)
                 return self.wrappedVC(with: profileVC, title: $0.title)
             case .settings:
                 let settingsVC = SettingsViewController()

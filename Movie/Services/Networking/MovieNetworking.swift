@@ -9,6 +9,8 @@ import Foundation
 import UIKit
 import Alamofire
 
+// TODO: вынести enum, extension в отдельные файлики
+
 enum HandleRequest {
     case succes(popularMovie: MovieResult)
     case error(error: Error)
@@ -17,6 +19,7 @@ enum HandleRequest {
 enum ApplicationError: Error {
     case network(Networking)
     case unowned
+    case loadingInProcess
     
     enum Networking: Error {
         case emptyData
@@ -36,12 +39,14 @@ extension URLSessionConfiguration {
 class MovieNetworking {
     
     private let movieUrl = "https://api.themoviedb.org/3/movie/popular"
+    private let imageMovieURL = "https://image.tmdb.org/t/p/w500/"
     private let decoder = JSONDecoder()
     private let session = URLSession(configuration: .movieConfiguration)
+    private let sessionAF = Session(configuration: .movieConfiguration)
     
-    func getMoviesAM(completion: @escaping (HandleRequest) -> Void) {
-        let parameters = Parameters(dictionaryLiteral: ("language", "en-US"), ("page", 1), ("api_key", "ff583eecef0b8d51b43d55166fd50b9a"))
-        AF.request(movieUrl,
+    func getMoviesAM(pageNumber: Int, completion: @escaping (HandleRequest) -> Void) {
+        let parameters = Parameters(dictionaryLiteral: ("language", "en-US"), ("page", pageNumber), ("api_key", "ff583eecef0b8d51b43d55166fd50b9a"))
+        sessionAF.request(movieUrl,
                    method: .get,
                    parameters: parameters,
                    encoding: URLEncoding.default,
@@ -62,25 +67,63 @@ class MovieNetworking {
         }
     }
     
-    
-    func getMovieImageAM(withURLString: String, completion: @escaping (UIImage?) -> Void) {
-        AF.request(withURLString,
-                   method: .get,
-                   parameters: nil,
-                   encoding: URLEncoding.default,
-                   headers: nil,
-                   interceptor: nil).response {
-            response in
+    func getMovieImageAM(imagePath: String, completion: @escaping (UIImage?) -> Void) {
+        let imageUrl = imageMovieURL + imagePath
+        AF.request(
+            imageUrl,
+            method: .get,
+            parameters: nil,
+            encoding: URLEncoding.default,
+            headers: nil,
+            interceptor: nil
+        ).response { response in
             switch response.result {
             case .success(let data):
-                guard let data = data, let image = UIImage(data: data) else { return }
-                completion(image)
+                let image = UIImage(data: data ?? Data())
+                DispatchQueue.main.async {
+                    completion(image)
+                }
             case .failure(let error):
-                print(error)
+                print(error.localizedDescription)
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
             }
         }
     }
     
+    func taskLoadMovieImage(imagePath: String, callBack: @escaping (UIImage?) -> Void) -> URLSessionDataTask? {
+        
+        guard let posterPath = URL(string: imagePath) else {
+            DispatchQueue.main.async {
+                callBack(nil)
+            }
+            return nil
+        }
+        
+        let task = URLSession.shared.dataTask(with: posterPath) { data, response, error in
+            if error != nil {
+                print("Error poster: \(String(describing: error?.localizedDescription))")
+                DispatchQueue.main.async {
+                    callBack(nil)
+                }
+                return
+            }
+            
+            guard let data = data, let image = UIImage(data: data) else {
+                print("Error poster: data not found")
+                DispatchQueue.main.async {
+                    callBack(nil)
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                callBack(image)
+            }
+        }
+        return task
+    }
     
     func getMovieImage(withURLString: String, completion: @escaping (UIImage?) -> Void) {
         
@@ -88,10 +131,10 @@ class MovieNetworking {
             DispatchQueue.main.async {
                 completion(nil)
             }
-            return print("ERROR")
+            return
         }
         
-        let task = URLSession.shared.dataTask(with: posterPath) { data, response, error in
+        let task = session.dataTask(with: posterPath) { data, response, error in
             if error != nil {
                 print("Error poster: \(String(describing: error?.localizedDescription))")
                 DispatchQueue.main.async {
@@ -147,5 +190,8 @@ class MovieNetworking {
         task.resume()
     }
 }
-   
-   
+
+
+
+
+

@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import SnapKit
 
 class AboutAppTutorialViewController: UIViewController {
     
-    lazy var label: UILabel = {
+    private lazy var label: UILabel = {
         let label = UILabel()
         label.text = "Hello"
         label.textAlignment = .center
@@ -20,12 +21,17 @@ class AboutAppTutorialViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemMint
-        view.addSubview(label)
-        label.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        label.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        label.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        label.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        setupUI()
     }
-    
+}
+
+extension AboutAppTutorialViewController {
+    private func setupUI() {
+        self.view.addSubview(label)
+        self.view.backgroundColor = .systemCyan
+        self.label.snp.makeConstraints {
+            $0.centerX.centerY.equalToSuperview()
+            $0.height.width.equalTo(100)
+        }
+    }
 }

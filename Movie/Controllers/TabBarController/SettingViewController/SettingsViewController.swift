@@ -1,5 +1,5 @@
 //
-//  ProfileViewController.swift
+//  SettingsViewController.swift
 //  Movie
 //
 //  Created by Admin on 08.05.2023.
@@ -7,12 +7,10 @@
 
 import UIKit
 
-class ProfileViewController: UIViewController {
+class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        view.backgroundColor = .systemMint
+        view.backgroundColor = .systemGray
     }
-    
 }

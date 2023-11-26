@@ -8,8 +8,26 @@
 import Foundation
 import CoreData
 import UIKit
+import RealmSwift
 
 final class CoreDatManager: DataBaseProtocol {
+    
+    func saveRecord<T>(_ record: T) where T : Object {
+        print("aa")
+    }
+    
+    func saveMovie<T>(with model: T) where T : DataBaseRecord {
+        print("dd")
+    }
+    
+    func getRecords<T>() -> [T] where T : DataBaseRecord {
+        return []
+    }
+    
+    func removeAll() {
+        print("ds")
+    }
+    
     //Получение доступа к области памяти
     
     lazy var persistentContainer: NSPersistentContainer = {
@@ -53,8 +71,9 @@ final class CoreDatManager: DataBaseProtocol {
         saveContext(context: context)
     }
     
-    func fetchMovies() -> [Movie] {
-        return fetchMovies(context: persistentContainer.viewContext)
+    func fetchMovies() -> [MovieModel] {
+        return fetchMovies(context: persistentContainer.viewContext).map { $0.transformToMovieModel() }
+
     }
     
     func fetchMovies(context: NSManagedObjectContext) -> [Movie] {
@@ -77,6 +96,7 @@ final class CoreDatManager: DataBaseProtocol {
         saveContext(context: context)
     }
 }
+
 
 
 

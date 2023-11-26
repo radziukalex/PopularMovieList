@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 // MARK: - MovieJSON
 struct MovieResult: Codable {
@@ -31,7 +32,6 @@ struct MovieModel: Codable {
     let posterPath: String
     let title: String
     let voteAverage: Double
-    
 
     enum CodingKeys: String, CodingKey {
         
@@ -46,5 +46,8 @@ struct MovieModel: Codable {
     }
 }
 
-
-
+extension MovieModel: DataBaseRecord {
+    func transformToMovieObject() -> Object {
+        return MovieObject(backdropPath: backdropPath, id: id, overview: overview, originalTitle: originalTitle, posterPath: posterPath, title: title, voteAverage: voteAverage)
+    }
+}

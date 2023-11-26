@@ -7,97 +7,100 @@
 
 import Foundation
 import UIKit
+import SnapKit
 
 class CustomTableViewCell: UITableViewCell {
     
     var movieModel: MovieModel? = nil
+    var taskLoadImage: URLSessionDataTask? = nil
     
     private let movieOriginalTitle: UILabel = {
-        let lbl = UILabel()
-        lbl.textColor = .black
-        lbl.font = UIFont.boldSystemFont(ofSize: 16)
-        lbl.textAlignment = .left
-        return lbl
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textAlignment = .left
+        return label
     }()
     
     private let movieOverview: UILabel = {
-        let lbl = UILabel()
-        lbl.textColor = .black
-        lbl.font = UIFont.systemFont(ofSize: 14)
-        lbl.textAlignment = .justified
-        lbl.numberOfLines = 0
-        return lbl
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textAlignment = .justified
+        label.numberOfLines = 0
+        return label
     }()
     
-    let buttonMoreInformation: UIButton = {
-        let btn = UIButton()
-        btn.setImage(UIImage(systemName: "ellipsis"), for: .normal)
-        btn.imageView?.contentMode = .scaleAspectFill
-        return btn
+    private let movieBackdropImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .clear
+        imageView.clipsToBounds = true
+        return imageView
     }()
     
-    let movieBackdropPath: UIImageView = {
-        let imgView = UIImageView()
-        imgView.contentMode = .scaleAspectFit
-        imgView.backgroundColor = .clear
-        imgView.clipsToBounds = true
-//        imgView.layer.cornerRadius = 10
-        return imgView
+    private let favoriteMoviesButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "star"), for: .normal)
+        button.backgroundColor = .white
+        button.clipsToBounds = true
+        return button
     }()
-    
-    var openMovieCompletion: ((MovieModel) -> Void)? = nil
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.setupUI()
-        
+        setupUI()
     }
     
-    func configure(
-        model: MovieModel,
-        loadImage: @escaping ((String, @escaping (UIImage?) -> Void) -> Void)
-    ) {
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.movieBackdropImageView.image = nil
+        self.taskLoadImage?.cancel()
+        self.taskLoadImage = nil
+    }
+    
+    func configure(model: MovieModel, imageLoader: ImageLoaderProtocol) {
         self.movieModel = model
         self.movieOverview.text = model.overview
         self.movieOriginalTitle.text = model.title
         let path = model.posterPath
         let imageURL = "https://image.tmdb.org/t/p/w300/" + path
-        loadImage(imageURL) { [weak self] (image) in
-            self?.movieBackdropPath.image = image
+        self.taskLoadImage = imageLoader.taskLoadMovieImage(imagePath: imageURL) { [weak self] image in
+            self?.movieBackdropImageView.image = image
         }
+        self.taskLoadImage?.resume()
     }
     
-    func setupUI() {
-        contentView.addSubview(movieBackdropPath)
+    private func setupUI() {
+        contentView.addSubview(movieBackdropImageView)
         contentView.addSubview(movieOriginalTitle)
         contentView.addSubview(movieOverview)
+        contentView.addSubview(favoriteMoviesButton)
         
-        movieBackdropPath.translatesAutoresizingMaskIntoConstraints = false
-        movieOriginalTitle.translatesAutoresizingMaskIntoConstraints = false
-        movieOverview.translatesAutoresizingMaskIntoConstraints = false
-        buttonMoreInformation.translatesAutoresizingMaskIntoConstraints = false
-        contentView.heightAnchor.constraint(equalToConstant: 110).isActive = true
+        movieBackdropImageView.snp.makeConstraints {
+            $0.left.equalToSuperview().inset(-100)
+            $0.top.equalToSuperview().inset(10)
+            $0.bottom.equalToSuperview().inset(10)
+        }
         
-        movieBackdropPath.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
-//        movieBackdropPath.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
-        movieBackdropPath.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 10).isActive = true
-//        movieBackdropPath.rightAnchor.constraint(equalTo: self.contentView.leftAnchor, constant: 80).isActive = true
-        movieBackdropPath.heightAnchor.constraint(equalToConstant: 80).isActive = true
-        movieBackdropPath.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        movieOriginalTitle.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(10)
+            $0.left.equalTo(movieBackdropImageView).inset(200)
+            $0.right.equalToSuperview().inset(15)
+        }
         
-        movieOriginalTitle.leftAnchor.constraint(equalTo: self.movieBackdropPath.rightAnchor, constant: 16).isActive = true
-        movieOriginalTitle.rightAnchor.constraint(equalTo: self.contentView.rightAnchor, constant: -50).isActive = true
-        movieOriginalTitle.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10).isActive = true
-//        movieOriginalTitle.bottomAnchor.constraint(equalTo: self.topAnchor, constant: 30).isActive = true
-//        movieOriginalTitle.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        movieOriginalTitle.heightAnchor.constraint(equalToConstant: 23).isActive = true
+        movieOverview.snp.makeConstraints {
+            $0.top.equalTo(movieOriginalTitle).inset(20)
+            $0.left.equalTo(movieBackdropImageView).inset(200)
+            $0.bottom.equalToSuperview().inset(10)
+            $0.width.equalTo(300)
+        }
         
-        movieOverview.leftAnchor.constraint(equalTo: self.movieBackdropPath.rightAnchor, constant: 16).isActive = true
-        movieOverview.topAnchor.constraint(equalTo: self.movieOriginalTitle.bottomAnchor, constant: -5).isActive = true
-        movieOverview.rightAnchor.constraint(equalTo: self.contentView.rightAnchor, constant: -20).isActive = true
-        movieOverview.heightAnchor.constraint(equalToConstant: 70).isActive = true
-//        movieOverview.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
-//        movieOverview.heightAnchor.constraint(equalToConstant: 70).isActive = true
+        favoriteMoviesButton.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.right.equalToSuperview()
+        }
+
     }
     
     required init?(coder: NSCoder) {

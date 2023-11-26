@@ -8,6 +8,8 @@
 import Foundation
 import CoreData
 
+// TODO: rename to MovieManagedObject
+
 @objc(Movie)
 public class Movie: NSManagedObject {}
 
@@ -26,14 +28,10 @@ extension Movie {
     
 }
 
-extension Movie : Identifiable {
-    
-}
+extension Movie : Identifiable { }
 
 extension Movie {
     func transformToMovieModel() -> MovieModel {
         return MovieModel(backdropPath: backdropPath, id: Int(id), overview: overview, originalTitle: originalTitle, posterPath: posterURL, title: title, voteAverage: voteAverage)
     }
 }
-
-
